@@ -1,0 +1,31 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# Prevent automatic shutdown of bluetooth-device.
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+
+INTERVAL=120              # keep-alive interval
+LOW_VOLUME=1              # "silent"
+MIXER_ARG="DA84 - A2DP"   # mixer-specific args
+
+getVolume() {
+ amixer get "$MIXER_ARG" |grep -o [0-9]*%|sed 's/%//'| head -n 1
+}
+
+setVolume() {
+ amixer -q set "$MIXER_ARG" "$1%"
+}
+
+while true; do
+  sleep "$INTERVAL"
+  volume=$(getVolume)
+  setVolume "$LOW_VOLUME"
+  aplay -q /usr/share/sounds/alsa/Noise.wav 2>/dev/null
+  setVolume "$volume"
+done

@@ -1,0 +1,13 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# Connect with the bluetooth-device defined in /etc/asound.conf
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+MAC=$(sed -n '/device/s/[^"]*"\([^"]*\)"/\1/p' /etc/asound.conf)
+echo -e "connect $MAC\nquit" | bluetoothctl
