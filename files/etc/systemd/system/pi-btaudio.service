@@ -1,0 +1,22 @@
+# --------------------------------------------------------------------------
+# Unit definition for the pi-btaudio.service.
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+[Unit]
+Description=pi-btaudio - automatically connect to bluetoth-audio-device
+Requires=bluealsa.service
+After=bluealsa.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/sbin/pi-btaudio.py
+
+[Install]
+WantedBy=bluetooth.target
