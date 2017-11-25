@@ -1,0 +1,101 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# This script installs files and services specific to this project.
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+PACKAGES="bluealsa python-dbus"
+PROJECT="pi-btaudio"
+
+# --- basic packages   ------------------------------------------------------
+
+check_packages() {
+  local p
+  for p in "$@"; do
+    echo -en "Checking $p ... " >&2
+    dpkg -s "$p" 2>/dev/null | grep -q "Status.*ok" || return 0
+    echo "ok" >&2
+  done
+  return 1
+}
+
+install_packages() {
+  if [ -n "$PACKAGES" ] && check_packages $PACKAGES; then
+    echo -e "[INFO] installing additional packages" 2>&1
+    apt-get update
+    apt-get -y install $PACKAGES
+  fi
+}
+
+# --- install specific files   ----------------------------------------------
+
+install_files() {
+  echo -e "[INFO] installing project files" 2>&1
+
+  rand="$RANDOM"
+  if [ -f "/etc/$PROJECT.conf" ]; then
+    # save current configuration
+    mv "/etc/$PROJECT.conf" "/etc/$PROJECT.conf.$rand"
+  fi
+
+  for f in `find $(dirname "$0")/../files/ -type f -not -name "*.pyc"`; do
+    target="${f#*files}"
+    target_dir="${target%/*}"
+    [ ! -d "$target_dir" ] && mkdir -p "$target_dir"
+    cp "$f" "$target"
+    chown root:root "$target"
+  done
+
+  #chmod 755 "/usr/local/sbin/$PROJECT.py"
+  #chmod 644 "/etc/$PROJECT.conf"
+  chmod 644  "/etc/asound.conf"
+  #chmod 644 "/etc/systemd/system/$PROJECT.service"
+  chmod 644  "/etc/systemd/system/bluealsa.service"
+
+  # restore old configuration
+  if [ -f "/etc/$PROJECT.conf.$rand" ]; then
+    mv -f "/etc/$PROJECT.conf" "/etc/$PROJECT.conf.$PROJECT"
+    mv "/etc/$PROJECT.conf.$rand" "/etc/$PROJECT.conf"
+    echo -e "[INFO] new version of configuration file saved to: /etc/$PROJECT.conf.$PROJECT" 2>&1
+  fi
+}
+
+# --- configure system   ----------------------------------------------------
+
+configure_system() {
+ :
+}
+
+# --- disable service   ----------------------------------------------------
+
+disable_services() {
+  echo -e "[INFO] disabling bluealsa.service" 2>&1
+  systemctl disable bluealsa.service
+}
+
+# --- activate service   ----------------------------------------------------
+
+enable_services() {
+  echo -e "[INFO] enabling bluealsa.service" 2>&1
+  systemctl enable bluealsa.service
+  systemctl start  bluealsa.service
+#  echo -e "[INFO] enabeling $PROJECT.service" 2>&1
+#  systemctl enable "$PROJECT.service"
+}
+
+# --- main program   --------------------------------------------------------
+
+install_packages
+disable_services
+install_files
+configure_system
+enable_services
+
+echo "Please edit /etc/asound.conf"
+#echo "Please edit /etc/$PROJECT.conf"
+#echo "Restart the system to activate changes"
