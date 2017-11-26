@@ -10,4 +10,4 @@
 # --------------------------------------------------------------------------
 
 MAC=$(sed -n '/device/s/[^"]*"\([^"]*\)"/\1/p' /etc/asound.conf)
-echo -e "connect $MAC\nquit" | bluetoothctl
+echo -e "connect $MAC\nquit" | sudo bluetoothctl
