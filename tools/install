@@ -52,6 +52,9 @@ install_files() {
   done
 
   chmod 755 "/usr/local/sbin/$PROJECT.py"
+  chmod 755 "/usr/local/bin/btaudio-connect"
+  chmod 755 "/usr/local/bin/btaudio-disconnect"
+  chmod 755 "/usr/local/bin/btaudio-keep-alive"
   chmod 644  "/etc/asound.conf"
   chmod 644 "/etc/systemd/system/$PROJECT.service"
   chmod 644  "/etc/systemd/system/bluealsa.service"
