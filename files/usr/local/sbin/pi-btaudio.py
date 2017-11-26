@@ -24,13 +24,23 @@ LOG_LEVEL = logging.INFO
 #LOG_LEVEL = logging.DEBUG
 LOG_FILE = "/dev/log"
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
-#BLUEZ_DEV = "org.bluez.MediaControl1"
 BLUEZ_DEV = "org.bluez.Device1"
 
 # --- extract MAC of bluetooth-device from /etc/asound.conf   ----------------
 
 def get_audio_mac():
-  return "32:54:03:BB:CC:28"
+  mac = "xx:xx:xx:xx:xx:xx"
+  try:
+    asound_conf = open("files/etc/asound.conf","r")
+    for line in asound_conf:
+      if line.startswith("defaults.bluealsa.device"):
+        mac = line.split()[1].strip('"\'')
+        break
+    asound_conf.close()
+    return mac
+  except Exception as e:
+    logger.error("pi-btaudio: unable to parse asound.conf: %" % e.message)
+    sys.exit(1)
 
 # --- callback handler for property changes   --------------------------------
 
