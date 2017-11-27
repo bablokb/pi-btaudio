@@ -10,14 +10,9 @@
 #
 # --------------------------------------------------------------------------
 
-import os
-import sys
-import signal
-import logging
-import logging.handlers
-import dbus
-import dbus.service
-import dbus.mainloop.glib
+import os, sys, time, signal
+import logging, logging.handlers
+import dbus, dbus.service, dbus.mainloop.glib
 import gobject
 
 LOG_LEVEL = logging.INFO
@@ -31,7 +26,7 @@ BLUEZ_DEV = "org.bluez.Device1"
 def get_audio_mac():
   mac = "xx:xx:xx:xx:xx:xx"
   try:
-    asound_conf = open("files/etc/asound.conf","r")
+    asound_conf = open("/etc/asound.conf","r")
     for line in asound_conf:
       if line.startswith("defaults.bluealsa.device"):
         mac = line.split()[1].strip('"\'')
@@ -81,16 +76,20 @@ def shutdown(signum, frame):
 # --- main program   ---------------------------------------------------------
 
 if __name__ == "__main__":
+  # sleep a few seconds to allow bluealsa to settle
+  time.sleep(5)
+
   # shut down on a TERM or INT signals
   signal.signal(signal.SIGTERM, shutdown)
   signal.signal(signal.SIGINT, shutdown)
 
-  # extract MAC of bluetooth-audio device
-  audio_mac = get_audio_mac() 
   # start logging
   logger = logging.getLogger("pi-btaudio")
   logger.setLevel(LOG_LEVEL)
   logger.addHandler(logging.handlers.SysLogHandler(address = "/dev/log"))
+
+  # extract MAC of bluetooth-audio device
+  audio_mac = get_audio_mac()
   logger.info("pi-btaudio: starting to monitor %s for auto-connect", audio_mac)
 
   # Get the system bus
