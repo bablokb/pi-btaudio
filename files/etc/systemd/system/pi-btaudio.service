@@ -17,6 +17,8 @@ After=bluealsa.service
 Type=simple
 User=root
 ExecStart=/usr/local/sbin/pi-btaudio.py
+ExecStartPost=/bin/sleep 5
+ExecStartPost=/usr/local/bin/btaudio-connect
 
 [Install]
 WantedBy=bluetooth.target
