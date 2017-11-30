@@ -39,7 +39,7 @@ def get_audio_mac():
 
 # --- callback handler for property changes   --------------------------------
 
-def device_property_changed_cb(interface_name,value,path,interface,device_path):
+def on_property_changed(interface_name,value,path,interface,device_path):
   global bus, audio_mac
 
   logger.debug("pi-btaudio: interface_name: %s" % interface_name)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     sys.exit(1)
 
   # listen for signals on the Bluez bus
-  bus.add_signal_receiver(device_property_changed_cb,
+  bus.add_signal_receiver(on_property_changed,
                           bus_name="org.bluez",
                           signal_name="PropertiesChanged",
                           path_keyword="device_path",
