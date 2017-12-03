@@ -58,7 +58,8 @@ The install script will
   - create a sample `/etc/asound.conf` which will make your bluetooth-device
     the system-wide default audio-device
   - install a watchdog-daemon which will autoconnect to the bluetooth-device
-    configured in `/etc/asound.conf`
+    configured in `/etc/asound.conf`. Note that this is not necessary for
+    all bluetooth-devices, but some just don't automatically connect to the Pi.
   - install the utiliy-scripts `btaudio-connect` and `btaudio-disconnect`
     to manually connect and disconnect to the device
 
