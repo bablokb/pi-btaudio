@@ -47,7 +47,7 @@ Installation
 To install all necessary software and the template configuration files, run
 the following commands:
 
-    git clone https://github.com/bablokb/pi-bt-audio.git
+    git clone https://github.com/bablokb/pi-btaudio.git
     cd pi-btaudio
     sudo tools/install
 
