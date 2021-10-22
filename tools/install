@@ -57,7 +57,6 @@ install_files() {
   chmod 755 "/usr/local/bin/btaudio-keep-alive"
   chmod 644  "/etc/asound.conf"
   chmod 644 "/etc/systemd/system/$PROJECT.service"
-  chmod 644  "/etc/systemd/system/bluealsa.service"
 
   # restore old configuration
   if [ -f "/etc/asound.conf.$rand" ]; then
