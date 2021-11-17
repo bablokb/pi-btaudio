@@ -53,8 +53,7 @@ the following commands:
 
 The install script will
 
-  - create the `/etc/systemd/system/bluealsa.service`, which will start
-    the bluealsa-daemon even on headless systems
+  - install the bluealsa.service
   - create a sample `/etc/asound.conf` which will make your bluetooth-device
     the system-wide default audio-device
   - install a watchdog-daemon which will autoconnect to the bluetooth-device
