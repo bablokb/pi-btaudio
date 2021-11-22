@@ -16,22 +16,40 @@ Until Raspbian-Jessie, for bluetooth-devices you additionally needed
 PulseAudio, making things even more complicated. With Stretch this has
 changed and PulseAudio was replaced with a rather simple helper daemon
 called *bluealsa*. Nevertheless, a simple setup is still complicated,
-partly because the maintainer of the bluealsa package installs the
+partly because the maintainer of the bluealsa package installed the
 daemon only for grafical environments.
 
-This project tries to simplify the setup of bluetooth-audio. Idealy, all
-you need to do is to replace a single MAC-address (of you bluetooth-device)
-in a single configuration file. There is one caveat though: the project
-currently only supports a single device, but anyhow, this should already
-cover most of the use-cases.
+With Buster, the setup with bluealsa did not work anymore. The main reason
+for this is an outdated version. The package "bluealsa" had been forked
+from the upstream "bluez-alsa" and had never been updated. The good
+news is, that with Buster the PulseAudio-system also works for headless
+systems, so you don't actually need bluealsa/bluez-alsa anymore. But
+PulseAudio inflates a Buster-lite image by 50%, so instead of installing
+something around 1GB, you need 1,5GB (which also has to be backuped etc.).
+Also, PulseAudio always has problems with connecting devices.
+
+Orignially, this project tried to simplify the setup of bluetooth-audio by
+providing an optimized configuration for bluealsa. Now, it also
+provides a compiled version of a newer upstream version of bluez-alsa
+for the Raspberry Pi (see below for details).
+
+After installation all you have to do is to replace a single MAC-address
+(of you bluetooth-device) in a single configuration file. There is one
+caveat though: the project currently only supports a single device,
+but anyhow, this should already cover most of the use-cases.
 
 
 Prerequisites
 -------------
 
-To use bluealsa, you first have to manually pair the Pi with your device
-and establish a trust. This is done using the program `bluetoothctl`. The
-following screenshot shows all the necessary steps:
+To use bluez-alsa, you first have to manually pair the Pi with your device
+and establish a trust. This is done using the program `bluetoothctl`. Note
+that you have to add your user (typically `pi`) to the group `bluetooth`
+and login again:
+
+    sudo usermod -a -G bluetooth pi
+
+Pairing uses the commands from the following screenshot:
 ![](images/pairing.png "pairing the device and establishing trust").
 
 You don't have to type all these numbers, just type the first few and then press
@@ -50,10 +68,14 @@ the following commands:
     git clone https://github.com/bablokb/pi-btaudio.git
     cd pi-btaudio
     sudo tools/install
+    sudo tar -xvzpf misc/bluez-alsa.armhf.tar.gz -C /
 
 The install script will
 
-  - install the bluealsa.service
+  - install prerequisite-packages (see list in `tools/install`)
+  - unpack a compiled version of bluez-alsa.
+    *This is not an installation, you must remove the files manually if
+    you decide that you don't want/need bluez-alsa anymore*
   - create a sample `/etc/asound.conf` which will make your bluetooth-device
     the system-wide default audio-device
   - install a watchdog-daemon which will autoconnect to the bluetooth-device
