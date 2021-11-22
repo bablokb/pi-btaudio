@@ -9,7 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-PACKAGES="bluealsa python-dbus python-gobject"
+PACKAGES="python3-dbus python3-gobject"
 PROJECT="pi-btaudio"
 
 # --- basic packages   ------------------------------------------------------
