@@ -9,7 +9,7 @@
 #
 # --------------------------------------------------------------------------
 
-PACKAGES="python3-dbus python3-gobject"
+PACKAGES=""
 PROJECT="pi-btaudio"
 
 # --- basic packages   ------------------------------------------------------
@@ -51,10 +51,8 @@ install_files() {
     chown root:root "$target"
   done
 
-  chmod 755 "/usr/local/sbin/$PROJECT.py"
   chmod 755 "/usr/local/bin/btaudio-connect"
   chmod 755 "/usr/local/bin/btaudio-disconnect"
-  chmod 755 "/usr/local/bin/btaudio-keep-alive"
   chmod 644  "/etc/asound.conf"
   chmod 644 "/etc/systemd/system/$PROJECT.service"
 
@@ -66,37 +64,11 @@ install_files() {
   fi
 }
 
-# --- configure system   ----------------------------------------------------
-
-configure_system() {
- :
-}
-
-# --- disable service   ----------------------------------------------------
-
-disable_services() {
-  echo -e "[INFO] disabling bluealsa.service" 2>&1
-  systemctl disable bluealsa.service
-}
-
-# --- activate service   ----------------------------------------------------
-
-enable_services() {
-  echo -e "[INFO] enabling bluealsa.service" 2>&1
-  systemctl enable bluealsa.service
-  systemctl start  bluealsa.service
-  echo -e "[INFO] enabeling $PROJECT.service" 2>&1
-  systemctl enable "$PROJECT.service"
-  systemctl start  "$PROJECT.service"
-}
-
 # --- main program   --------------------------------------------------------
 
 install_packages
 disable_services
 install_files
-configure_system
-enable_services
 
 echo "Please edit /etc/asound.conf"
 echo "Restart the system afterwards to activate changes"
