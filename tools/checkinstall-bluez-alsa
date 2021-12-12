@@ -1,0 +1,33 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# Create deb-package after configure+make
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+echo "bluez-alsa compiled with defaults" > description-pak
+
+sudo checkinstall \
+  --default \
+  --install=no \
+  --pkgname=arkq-bluez-alsa \
+  --pkgversion=$(sed -ne '/^VERSION/s/VERSION = v\([^-]*\)-.*$/\1/p' src/Makefile) \
+  --pkgrelease=$(sed -ne '/^VERSION/s/VERSION = v\([^-]*\)-\([^-]*\)-.*$/\2/p' src/Makefile) \
+  --pkglicense=MIT \
+  --pkgsource=https://github.com/Arkq/bluez-alsa \
+  --pkgaltsource=https://github.com/Arkq/bluez-alsa \
+  --maintainer=bablokb@gmx.de \
+  --provides=arkq-bluez-alsa \
+  --requires="libbluetooth3,libsbc1" \
+  --nodoc \
+  --backup=no \
+  --deldoc=yes \
+  --deldesc=yes
+
+echo "created package. Changing owner to $USER:$GROUPS"
+
+sudo chown $USER:$GROUPS arkq-bluez-alsa*.deb

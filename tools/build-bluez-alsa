@@ -1,0 +1,49 @@
+#!/bin/bash
+# --------------------------------------------------------------------------
+# Build bluez-alsa from source for the Raspberry Pi
+#
+# This recipe is from the install-from-source wiki of bluez-alsa
+#
+# Author: Bernhard Bablok
+# License: GPL3
+#
+# Website: https://github.com/bablokb/pi-btaudio
+#
+# --------------------------------------------------------------------------
+
+if [ "$1" = "deb" ]; then
+  if type -p checkinstall > /dev/null; then
+    create_deb="y"
+  else
+    echo "checkinstall not installed. Aborting..." >&2
+    exit 3
+  fi
+fi
+
+sudo apt-get -y update
+sudo apt-get -y install autoconf
+sudo apt-get -y install build-essential libtool pkg-config python-docutils \
+                        libasound2-dev libbluetooth-dev libdbus-1-dev \
+                        libglib2.0-dev libsbc-dev
+
+git clone https://github.com/Arkq/bluez-alsa.git
+cd bluez-alsa
+
+autoreconf --install --force
+
+mkdir build
+cd build
+
+../configure --enable-systemd
+
+# use improved service-definition from wiki
+cp ../../misc/systemd/bluealsa.service ../misc/systemd/bluealsa.service.in
+
+make
+
+if [ -n "$create_deb" ]; then
+  pgm_dir=$(dirname "$0")
+  "$pgm_dir/checkinstall-bluez-alsa"
+else
+  sudo make -n install
+fi
