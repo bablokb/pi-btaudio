@@ -1,5 +1,5 @@
-Bluetooth Audio for (headless) Raspbian systems
-===============================================
+Bluetooth Audio for (headless) PiOS systems
+===========================================
 
 Introduction
 ------------
@@ -10,33 +10,26 @@ setups are complicated.
 
 Bluetooth adds another level of complexity. And therefore the forums are
 full of posts asking for help on how to connect a Linux system with a
-bluetooth speaker or headset. This is no different with Raspbian.
+bluetooth speaker or headset. This is no different with PiOs (Raspian).
 
-Until Raspbian-Jessie, for bluetooth-devices you additionally needed
-PulseAudio, making things even more complicated. With Stretch this has
-changed and PulseAudio was replaced with a rather simple helper daemon
-called *bluealsa*. Nevertheless, a simple setup is still complicated,
-partly because the maintainer of the bluealsa package installed the
-daemon only for grafical environments.
+You have two options: either use PulseAudio (fat, inflates a PiOS-lite
+installation by 50%), or [bluez-alsa](https://github.com/Arkq/bluez-alsa).
+Don't use "bluesalsa", an early fork of "bluez-alsa" which worked with
+Stretch, was broken with Buster and was removed from Bullseye. 
 
-With Buster, the setup with bluealsa did not work anymore. The main reason
-for this is an outdated version. The package "bluealsa" had been forked
-from the upstream "bluez-alsa" and had never been updated. The good
-news is, that with Buster the PulseAudio-system also works for headless
-systems, so you don't actually need bluealsa/bluez-alsa anymore. But
-PulseAudio inflates a Buster-lite image by 50%, so instead of installing
-something around 1GB, you need 1,5GB (which also has to be backuped etc.).
-Also, PulseAudio always has problems with connecting devices.
+This project aims to simplify the setup of
+[bluez-alsa](https://github.com/Arkq/bluez-alsa) for Pi-systems. It
+does not support all kinds of configurations, its main aim is to support
+single-device setups, i.e. a Pi using a dedicated BT-speaker for audio
+output.
 
-Orignially, this project tried to simplify the setup of bluetooth-audio by
-providing an optimized configuration for bluealsa. Now, it also
-provides a compiled version of a newer upstream version of bluez-alsa
-for the Raspberry Pi (see below for details).
+Note that functionality and stability of bluez-alsa varies with different
+hardware versions and OS-versions. The current status with
+bluez-alsa (version 3.1.0-78) for me:
 
-After installation all you have to do is to replace a single MAC-address
-(of you bluetooth-device) in a single configuration file. There is one
-caveat though: the project currently only supports a single device,
-but anyhow, this should already cover most of the use-cases.
+  - Buster   2021-05 works for Pi-Zero-W and Pi3B+
+  - Buster   2021-05 fails for Pi4 (BT speaker does not connect)
+  - Bullseye 2021-11 works, but BT speaker does not autoconnect
 
 
 Prerequisites
@@ -45,7 +38,7 @@ Prerequisites
 To use bluez-alsa, you first have to manually pair the Pi with your device
 and establish a trust. This is done using the program `bluetoothctl`. Note
 that you have to add your user (typically `pi`) to the group `bluetooth`
-and login again:
+if necessary (check with e.g. `id pi`) and login again:
 
     sudo usermod -a -G bluetooth pi
 
@@ -59,6 +52,47 @@ After pairing, note down the MAC address of your bluetooth-device, you will
 need it later for configuring ALSA.
 
 
+Install bluez-alsa
+------------------
+
+Note that Raspbian/PiOS had a package "bluealsa" (removed in Bullseye).
+This package is broken, don't install it!
+
+You can install bluez-alsa either from source (recommended),
+or using the deb-package provided from this project.
+
+Installation from source is straightforward, the commands are from the
+bluez-alsa wiki:
+
+    tools/build-bluez-alsa
+
+The drawback is that installation from source requires many development
+packages on your system. They are automatically downloaded but not
+everybody likes development tools on productive systems.
+
+You might have to adapt the configure-command in that script, which
+currently only does a default build (plus systemd-support).
+
+Installing the deb-package is much simpler, but that package was built for
+PiOS buster-lite (version 2021-05) using checkinstall and might or might
+not work for you:
+
+    sudo dpkg -i deb/arkq-bluez-alsa_3.1.0-78_armhf.deb
+    sudo apt-get -f -y install
+
+The first command will give some errors, which the second command should
+fix (hopefully).
+
+As a third alternative, you can build from source on one machine, create
+a deb-package and install it on another machine:
+
+    sudo apt-get -y update
+    sudo apt-get -y install checkinstall
+    tools/build-bluez-alsa deb
+
+This will create the deb-package in the directory `bluez-alsa/build`.
+
+
 Installation
 ------------
 
@@ -68,19 +102,12 @@ the following commands:
     git clone https://github.com/bablokb/pi-btaudio.git
     cd pi-btaudio
     sudo tools/install
-    sudo tar -xvzpf misc/bluez-alsa.armhf.tar.gz -C /
 
 The install script will
 
   - install prerequisite-packages (see list in `tools/install`)
-  - unpack a compiled version of bluez-alsa.
-    *This is not an installation, you must remove the files manually if
-    you decide that you don't want/need bluez-alsa anymore*
   - create a sample `/etc/asound.conf` which will make your bluetooth-device
     the system-wide default audio-device
-  - install a watchdog-daemon which will autoconnect to the bluetooth-device
-    configured in `/etc/asound.conf`. Note that this is not necessary for
-    all bluetooth-devices, but some just don't automatically connect to the Pi.
   - install the utiliy-scripts `btaudio-connect` and `btaudio-disconnect`
     to manually connect and disconnect to the device
 
@@ -98,8 +125,14 @@ address of your bluetooth-device in the line starting with
     defaults.bluealsa.device "32:54:03:BB:CC:28"
     defaults.bluealsa.profile "a2dp"
 
+Note that you can run
+
+    bluetoothctl devices
+
+which should give you the MAC-address of your bluetooth-speaker.
+
 That's it for configuration, all scripts and daemons will use this MAC-address.
 
 Now is the time to restart your system. After booting has finished and all
 daemons are up and running, your Pi should automatically connect to your
-speaker or headset.
+speaker or headset. If not, run `btaudio-connect`.
