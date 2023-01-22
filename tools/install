@@ -67,7 +67,6 @@ install_files() {
 # --- main program   --------------------------------------------------------
 
 install_packages
-disable_services
 install_files
 
 echo "Please edit /etc/asound.conf"
