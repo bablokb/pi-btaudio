@@ -22,9 +22,9 @@ fi
 
 sudo apt-get -y update
 sudo apt-get -y install autoconf
-sudo apt-get -y install build-essential libtool pkg-config python-docutils \
+sudo apt-get -y install build-essential libtool pkg-config libsbc-dev \
                         libasound2-dev libbluetooth-dev libdbus-1-dev \
-                        libglib2.0-dev libsbc-dev
+                        libglib2.0-dev
 
 git clone https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
