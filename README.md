@@ -31,6 +31,10 @@ bluez-alsa (version 3.1.0-78) for me:
   - Buster   2021-05 fails for Pi4 (BT speaker does not connect)
   - Bullseye 2021-11 works, but BT speaker does not autoconnect
 
+**Please read also the information given here:
+<https://github.com/bablokb/pi-btaudio/issues/13>**. Moving to
+pipewire might be the best options with Bookworm.
+
 
 Prerequisites
 -------------
